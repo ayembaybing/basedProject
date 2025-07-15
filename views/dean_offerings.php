@@ -41,25 +41,52 @@ $my_offerings = $offerings->fetchAll();
 </form>
 
 <h3>Your Offerings</h3>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <p style="color:red;"><strong><?= $_SESSION['error'] ?></strong></p>
+    <?php unset($_SESSION['error']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['success'])): ?>
+    <p style="color:green;"><strong><?= $_SESSION['success'] ?></strong></p>
+    <?php unset($_SESSION['success']); ?>
+<?php endif; ?>
+
 <table border="1" cellpadding="5">
-    <tr><th>ID</th><th>Year</th><th>Semester</th><th>Status</th><th>Reason</th><th>Action</th></tr>
+    <tr>
+        <th>ID</th>
+        <th>Year</th>
+        <th>Semester</th>
+        <th>Status</th>
+        <th>Disapproval Reason</th>
+        <th>Action</th>
+    </tr>
     <?php foreach ($my_offerings as $o): ?>
-        <tr>
+        <?php
+            $rowStyle = '';
+            if ($o['status'] === 'Approved') {
+                $rowStyle = 'style="background-color: #d4edda;"'; // Green
+            } elseif ($o['status'] === 'Disapproved') {
+                $rowStyle = 'style="background-color: #f8d7da;"'; // Red
+            } elseif ($o['status'] === 'Pending') {
+                $rowStyle = 'style="background-color: #fff3cd;"'; // Yellow
+            }
+        ?>
+        <tr <?= $rowStyle ?>>
             <td><?= $o['offering_id'] ?></td>
             <td><?= $o['year_level'] ?></td>
             <td><?= $o['semester'] ?></td>
             <td><?= $o['status'] ?></td>
-            <td><?= $o['status'] ?></td>
-<td><?= htmlspecialchars($o['disapproval_reason'] ?? '') ?></td>
+            <td><?= htmlspecialchars($o['disapproval_reason'] ?? '-') ?></td>
             <td>
-    <a href="dean_offering_subjects.php?id=<?= $o['offering_id'] ?>">Add Subjects</a>
-    <?php if ($o['status'] === 'Draft'): ?>
-        <form method="POST" action="../controllers/DeanController.php" style="display:inline;" onsubmit="return confirm('Submit this offering for approval?');">
-    <input type="hidden" name="submit_offering" value="<?= $o['offering_id'] ?>">
-    <button type="submit">Submit</button>
-</form>
-    <?php endif; ?>
-</td>
+                <a href="dean_offering_subjects.php?id=<?= $o['offering_id'] ?>">Add Subjects</a>
+                <?php if ($o['status'] === 'Draft'): ?>
+                    <form method="POST" action="../controllers/DeanController.php" style="display:inline;" onsubmit="return confirm('Submit this offering for approval?');">
+                        <input type="hidden" name="offering_id" value="<?= $o['offering_id'] ?>">
+                        <button type="submit" name="submit_offering">Submit</button>
+                    </form>
+                <?php endif; ?>
+            </td>
         </tr>
     <?php endforeach; ?>
 </table>

@@ -49,6 +49,13 @@ $added_subjects = $added->fetchAll();
     <button type="submit" name="add_subject_to_offering">Add Subject</button>
 </form>
 
+<?php if ($offering['status'] === 'Draft'): ?>
+    <form method="POST" action="../controllers/DeanController.php">
+        <input type="hidden" name="offering_id" value="<?= $_GET['id'] ?>">
+        <button type="submit" name="submit_offering" onclick="return confirm('Are you sure you want to submit this offering to the Registrar?')">Submit Offering</button>
+    </form>
+<?php endif; ?>
+
 <h3>Added Subjects</h3>
 <table border="1" cellpadding="5">
     <tr><th>Code</th><th>Name</th><th>Action</th></tr>

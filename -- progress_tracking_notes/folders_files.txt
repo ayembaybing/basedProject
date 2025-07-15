@@ -1,0 +1,22 @@
+subject_system
+	assets/
+	config/
+		db.php
+	controllers/
+		AdminController.php
+		AuthController.php
+		DeanController.php
+		RegistrarController.php
+	views/
+		admin_departments.php
+		admin_programs.php
+		admin_subjects.php
+		admin_users.php
+		dashboard.php
+		dean_offering_subjects.php
+		dean_offerings.php
+		login.php
+		registrar_offerings.php
+		submit_offering.php
+	index.php
+	logout.php

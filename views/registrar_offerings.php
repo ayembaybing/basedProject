@@ -4,36 +4,52 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'Registrar') {
     header("Location: login.php");
     exit;
 }
-include('../config/db.php');
 
-// Get all submitted offerings
+include('../config/db.php');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Get all submitted offerings with related program and dean info
 $stmt = $conn->prepare("
-    SELECT so.*, p.name AS program_name, u.username 
+    SELECT so.*, p.name AS program_name, u.name AS dean_name
     FROM subject_offerings so
     JOIN programs p ON so.program_id = p.program_id
     JOIN users u ON so.created_by = u.user_id
-    WHERE status = 'Submitted'
+    WHERE so.status = 'Pending'
 ");
 $stmt->execute();
 $offerings = $stmt->fetchAll();
+
 ?>
 
-<h2>Submitted Subject Offerings</h2>
+<h2>Pending Subject Offerings</h2>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <p style="color:red;"><strong><?= $_SESSION['error'] ?></strong></p>
+    <?php unset($_SESSION['error']); ?>
+<?php endif; ?>
+
 <table border="1" cellpadding="5">
 <tr>
-    <th>ID</th><th>Program</th><th>Year</th><th>Semester</th><th>Dean</th><th>Actions</th>
+    <th>ID</th>
+    <th>Program</th>
+    <th>Year</th>
+    <th>Semester</th>
+    <th>Dean</th>
+    <th>Actions</th>
 </tr>
+
 <?php foreach ($offerings as $o): ?>
-<tr>
+<tr style="background-color: #fff3cd;"> <!-- Yellow for pending -->
     <td><?= $o['offering_id'] ?></td>
     <td><?= $o['program_name'] ?></td>
     <td><?= $o['year_level'] ?></td>
     <td><?= $o['semester'] ?></td>
-    <td><?= $o['username'] ?></td>
+    <td><?= htmlspecialchars($o['dean_name']) ?></td>
     <td>
-        <form method="POST" action="../controllers/RegistrarController.php" style="display:inline;">
+        <form method="POST" action="../controllers/RegistrarController.php">
             <input type="hidden" name="offering_id" value="<?= $o['offering_id'] ?>">
-            <input type="text" name="disapproval_reason" placeholder="Reason (if disapprove)">
+            <input type="text" name="disapproval_reason" placeholder="Reason (if disapproving)">
             <button type="submit" name="action" value="approve">Approve</button>
             <button type="submit" name="action" value="disapprove" onclick="return confirm('Are you sure?')">Disapprove</button>
         </form>
