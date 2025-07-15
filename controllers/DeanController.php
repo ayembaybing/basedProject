@@ -2,6 +2,22 @@
 session_start();
 include('../config/db.php');
 
+require_once '../config/db.php'; // Or your actual DB include
+$pdo = $conn; // Rename to match your variable, if needed
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_offering'])) {
+    $offering_id = $_POST['submit_offering'];
+    
+    $stmt = $pdo->prepare("UPDATE subject_offerings SET status = 'Pending', submitted_at = NOW() WHERE offering_id = ?");
+    $stmt->execute([$offering_id]);
+
+    // Optionally log action
+    // Optionally notify Registrar here
+
+    header("Location: ../views/dean_offerings.php");
+    exit;
+}
+
 // Create Offering
 if (isset($_POST['create_offering'])) {
     $stmt = $conn->prepare("INSERT INTO subject_offerings 
@@ -67,22 +83,6 @@ if (isset($_GET['submit_offering'])) {
     header("Location: ../views/dean_offerings.php");
     exit;
 }
-
-public function submitOffering($offering_id) {
-    $stmt = $this->pdo->prepare("UPDATE subject_offerings SET status = 'Pending', submitted_at = NOW() WHERE offering_id = ?");
-    $stmt->execute([$offering_id]);
-
-    // Optional logging
-    $this->logAction($_SESSION['user_id'], "Submitted Subject Offering ID: $offering_id");
-
-    // Optional notification
-    // $this->notify('Registrar', "New offering submitted");
-
-    // Redirect after submission
-    header("Location: /views/dean_offerings.php"); // adjust path as needed
-    exit;
-}
-
 
 ?>
 
